@@ -1,46 +1,185 @@
 <section class="page-spacing">
-  <section class="flex w-full">
-    <section class="w-1/2">
-      <div style="background-image: url('{{this.model.imageOrDefault}}')" alt={{this.model.title}} class="w-full h-full show-image bg-top bg-cover"></div>
-      <h1 class="text-3xl">
-        {{this.model.title}}
-      </h1>
-      <strong>Air date:</strong> {{format-day this.model.start}} - {{format-time this.model.start}}
-      {{#if (or (eq this.currentUser.user.username this.model.hostedBy) (includes 'admin' this.currentUser.user.roles))}}
-        <div class="my-2">
-          <LinkTo
-            @route="home.user.my-shows.episode"
-            @models={{array this.model.showSeriesSlug this.model.slug}}
-            class="cool-button"
-          >
-            EDIT
-          </LinkTo>
+  <section class="flex flex-col gap-20 w-full">
+
+    <section class="
+      flex
+      flex-row
+      gap-4
+
+      p-6
+
+      rounded-lg
+
+      bg-df-blue-dark
+      
+      ">
+
+      
+      {{! episode art }}
+      <div
+        class="flex-none w-96 bg-center bg-contain"
+        style="{{this.backgroundStyle}};
+              aspect-ratio: 1/1;
+            "
+        >
+      </div>
+
+
+      {{! text metadata}}
+      <div
+        class="flex flex-col max-w-40 gap-4"
+        style="max-width: 300px;"
+      >
+        
+        {{! episode name }}
+        <h1 class="text-3xl">
+          {{this.model.title}}
+        </h1>
+
+        {{! air date }}
+        <span class="font-bold">
+          {{format-day this.model.start}} {{format-time this.model.start}}
+        </span>
+
+        {{! DJ pic + name }}
+        <div class="flex-auto flex flex-row items-center gap-2">
+
+          {{! DJ pic }}
+          <span class="flex-none">
+            <img
+              style="height: 2rem;"
+              class="inline rounded-lg"
+              src="{{@this.model.hostAvatarUrl}}"
+              />
+          </span>
+
+          {{! DJ name }}
+          <span class="flex-auto text-sm font-comic leading-tight">
+            <LinkTo @route="home.dj" @model={{@this.model.hostedBy}}>
+              {{@this.model.hostedBy}}
+            </LinkTo>
+          </span>
         </div>
-      {{/if}}
-      <p>
-      </p>
-      <p>
-        <ShowSeries::Description @description={{this.model.description}} />
-      </p>
-      {{#each this.model.tracks as |track|}}
-        <PodcastTrack
-          @track={{track}}
-          @show={{this.model}}
-          />
-      {{/each}}
-      <p class="wiki-article uppercase text-2xl p-2 mb-4">
-        Check out more episodes of
+
+        {{#if (or (eq this.currentUser.user.username this.model.hostedBy) (includes 'admin' this.currentUser.user.roles))}}
+          <div class="my-2">
+            <LinkTo
+              @route="home.user.my-shows.episode"
+              @models={{array this.model.showSeriesSlug this.model.slug}}
+              class="cool-button"
+            >
+              EDIT
+            </LinkTo>
+          </div>
+        {{/if}}
+        
+        {{! description }}
+        <p>
+          <ShowSeries::Description @description={{this.model.description}} />
+        </p>
+
+        {{#if (eq this.model.tracks.length 0)}}
+        <div class="font-bold">
+          This episode does not have a recording available.
+        </div>
+        {{/if}}
+
+        {{! labels }}
+        <TrackLabelList @labels={{this.model.labels}} />
+
+        {{! link to more of the show}}
         <LinkTo
           @route="home.show"
           @model={{this.model.showSeriesSlug}}>
-          {{this.model.showSeriesTitle}}
+          <strong>Check out more episodes of this show</strong>
         </LinkTo>
-      </p>
-      <div class="">
-        {{#each this.model.labels as |label|}}
-          <TrackLabel @label={{label}} />
-        {{/each}}
       </div>
+
+      {{! spacer to push playback butons to the edge}}
+      <div class="flex-1"></div>
+
+      {{! playback and download buttons }}
+      {{#if (eq this.model.tracks.length 1) }}
+        <div class="flex-none flex flex-col justify-start gap-2 ">
+          
+          
+          {{! website function buttons }}
+          {{#if this.model.tracks.[0].playing}}
+            <a
+              class="text-df-green hover:text-df-yellow text-2xl"
+              {{action "pause"}}
+              href="#"
+            >
+              {{t "player.pause"}}
+            </a>
+          {{else}}
+            <a
+              class="text-df-green hover:text-df-yellow text-2xl"
+              {{action "play"}}
+              href="#"
+            >
+              {{t "player.play"}}
+            </a>
+          {{/if}}
+
+
+          <a href={{@track.cdnUrl}} download="">
+            <FaIcon
+              @icon="download"
+              class="fa fa-download text-df-green hover:text-df-yellow text-2xl"
+            />
+          </a>
+
+
+          {{#if session.isAuthenticated}}
+            {{#if isFavorited}}
+              <button
+                class="cool-button favorited max-h-8"
+                type="button"
+                aria-label="Remove From Favorites"
+                title="Remove From Favorites"
+                {{on "click" unfavoriteTrack}}
+              >
+                <FaIcon @icon="heart" />
+              </button>
+            {{else}}
+              <button
+                class="cool-button not-favorited max-h-8"
+                type="button"
+                aria-label="Add To Favorites"
+                title="Add To Favorites"
+                {{on "click" favoriteTrack}}
+              >
+                <FaIcon @icon="heart" />
+              </button>
+            {{/if}}
+          {{/if}}
+      
+
+
+          {{! other links }}
+          {{#if @show.youtubeLink}}
+            <a href={{@show.youtubeLink}} target="_blank" rel="noreferrer noopener">
+              <FaIcon
+                @icon="youtube"
+                @prefix="fab"
+                class="text-df-green hover:text-df-yellow text-xl"
+              />
+            </a>
+          {{/if}}
+        </div>
+      {{/if}}
+
+
+    {{#if (gt this.model.tracks.length 1)}}
+      more tracks!
+    {{/if}}
+
+
+
+    </section>
+
+    <section>
       <div>
         <h1>{{t "show.episode.comments"}}</h1>
         <section>

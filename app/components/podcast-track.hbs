@@ -33,24 +33,22 @@ An entry for an archive show, like those that show in /podcasts.
   
   {{! show name }}
   <div class="flex flex-col gap-0.5 sm:gap-1.5">
-    <div class="flex flex-wrap gap-0.5 sm:gap-1.5">
-      <div>
-        <LinkTo
-          @route="home.shows.episode"
-          @models={{array @show.showSeriesSlug @show.slug}}>
-          {{@show.formattedEpisodeTitle}}
-        </LinkTo>
-        <span class="text-sm">
-          {{@show.formattedDate}}
-        </span>
-      </div>
-      
-      {{! Genres/tags/labels }}
-      <TrackLabelList @labels={{@show.labels}} />
+    <LinkTo
+      @route="home.shows.episode"
+      @models={{array @show.showSeriesSlug @show.slug}}>
+      {{@show.title}}
+    </LinkTo>
+  
 
+    
+    {{! air date }}
+    <div class="font-bold text-sm">
     </div>
-  </div>
+    
+    {{! Genres/tags/labels }}
+    <TrackLabelList @labels={{@show.labels}} />
 
+  </div>
 
   {{! spacer to make the layout flow nice}}
   <div class="flex-1"></div>
@@ -67,10 +65,10 @@ An entry for an archive show, like those that show in /podcasts.
         
         gap-2">
   
-    {{! DJ avatar + name }}
+    {{! DJ pic + name }}
     <div class="flex-auto flex flex-row items-center gap-2">
 
-      {{! avatar }}
+      {{! DJ pic }}
       <span class="flex-none">
         <img
           style="height: 2rem;"
@@ -79,7 +77,7 @@ An entry for an archive show, like those that show in /podcasts.
           />
       </span>
 
-      {{! name }}
+      {{! DJ name }}
       <span class="flex-auto text-sm font-comic leading-tight">
         <LinkTo @route="home.dj" @model={{@show.hostedBy}}>
           {{@show.hostedBy}}
@@ -89,6 +87,8 @@ An entry for an archive show, like those that show in /podcasts.
 
     {{! buttons }}
     <div class="flex-none flex flex-cols justify-start gap-2 ">
+
+        {{! website function buttons }}
         {{#if this.playing}}
           <a
             class="text-df-green hover:text-df-yellow text-xl"
@@ -112,15 +112,6 @@ An entry for an archive show, like those that show in /podcasts.
             class="fa fa-download text-df-green hover:text-df-yellow text-xl"
           />
         </a>
-        {{#if @show.youtubeLink}}
-          <a href={{@show.youtubeLink}} target="_blank" rel="noreferrer noopener">
-            <FaIcon
-              @icon="youtube"
-              @prefix="fab"
-              class="text-df-green hover:text-df-yellow text-xl"
-            />
-          </a>
-        {{/if}}
         {{#if this.session.isAuthenticated}}
           {{#if this.isFavorited}}
             <button
@@ -143,6 +134,18 @@ An entry for an archive show, like those that show in /podcasts.
               <FaIcon @icon="heart" />
             </button>
           {{/if}}
+        {{/if}}
+
+
+        {{! other links }}
+        {{#if @show.youtubeLink}}
+          <a href={{@show.youtubeLink}} target="_blank" rel="noreferrer noopener">
+            <FaIcon
+              @icon="youtube"
+              @prefix="fab"
+              class="text-df-green hover:text-df-yellow text-xl"
+            />
+          </a>
         {{/if}}
       </div>
 
